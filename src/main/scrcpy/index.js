@@ -1,6 +1,10 @@
 const { exec } = require('child_process')
 
 let fileSavePath = ''
+
+// 开发环境外部资源直接在项目根目录，生产环境在resource目录下
+let cwd = process.cwd() + ((process.env.NODE_ENV === 'development') ? '/extraResources/scrcpy' : '/resources/extraResources/scrcpy')
+
 let cmdObj = {
   windowTitle: title => title ? ' --window-title ' + title : '', // 窗口标题
   borderless: flag => flag ? ' --window-borderless' : '', // 无边框
@@ -20,10 +24,10 @@ let cmdObj = {
  * @param {*} outputPath 文件输出目录
  */
 function startScrcpy ({serial, windowSetting, outputPath}) {
-  console.log('开始投屏')
+  console.log('开始投屏', cwd, process.env.NODE_ENV)
   return new Promise(() => {
     fileSavePath = outputPath
-    let workerProcess = exec(getCmdStr(serial, windowSetting), {cwd: process.cwd() + '/resources/extraResources/scrcpy'}, (error, stdout, stderr) => {
+    let workerProcess = exec(getCmdStr(serial, windowSetting), {cwd: cwd}, (error, stdout, stderr) => {
       console.log('error---', error)
       console.log('stdout---', stdout)
       console.log('stderr---', stderr)
