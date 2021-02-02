@@ -10,7 +10,7 @@
 
     <el-main>
       <!-- 编译小程序 -->
-      <el-card ref="weappCard" class="box-card weappCard" body-style="height: 100px;" v-loading="!loadingEvent.done" :element-loading-text="loadingEvent.type === 'success'? loadingEvent.message: ''"  element-loading-spinner="el-icon-loading"  element-loading-background="rgba(0, 0, 0, 0.8)">
+      <el-card ref="weappCard" class="box-card weappCard" body-style="height: 100px;" v-loading="!loadingEvent.done" :element-loading-text="!loadingEvent.done? loadingEvent.message: ''"  element-loading-spinner="el-icon-loading"  element-loading-background="rgba(0, 0, 0, 0.8)">
         <div slot="header" class="card-header">
           <span>小程序操作</span>
           <el-button style="float: right; padding: 3px 0" type="text" @click="openConfig('weapp')">设置</el-button>
@@ -49,7 +49,7 @@
       </el-card>
 
       <!-- 应用管理 -->
-      <el-card class="box-card" body-style="height: 80px;">
+      <el-card class="box-card" body-style="height: 75px;">
         <div slot="header">
           <span>应用管理</span>
           <el-button style="float: right; padding: 3px 0" type="text" @click="openConfig('appList')">设置</el-button>
@@ -72,7 +72,7 @@
       </el-card>
 
       <!-- 设备管理 -->
-      <el-card class="box-card" body-style="height: 50px;">
+      <el-card class="box-card" body-style="height: 75px;">
         <div slot="header">
           <span>设备操作</span>
         </div>
@@ -185,7 +185,7 @@ export default {
         case this.selectedWeappIndex === '' && this.pushDirectionIndex !== '':
           return `将使用自有小程序包并push到车机“${this.aimDirection.name}”目录下`
         case this.selectedWeappIndex !== '' && this.pushDirectionIndex === '':
-          return `将只编译“${this.selectedWeapp.name}小程序包”`
+          return `将只编译“${this.selectedWeapp.name}”小程序包`
         case this.selectedWeappIndex === '' && this.pushDirectionIndex === '':
           return ''
       }

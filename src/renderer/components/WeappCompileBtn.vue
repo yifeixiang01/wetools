@@ -55,7 +55,7 @@ export default {
           this.$emit('weappLoading', {done: false, type: 'success', message: `正在将小程序包push到车机...`})
           let aimPathInDevice = this.aimDirection.name === '本地调试包' ? '/sdcard/moss/weapp/debug.wxapkg' : `data/data/com.tencent.wecarmas/files/moss/${this.aimDirection.name}/pkg/${this.aimDirection.appName}.wxapkg`
           return adb._pushFileToDevice({serial: this.selectedDevice.deviceId, filePath: aimPath, aimPath: aimPathInDevice}).then(res => {
-            this.$emit('weappLoading', {done: true, type: 'success', message: `小程序已push到移动设备`})
+            this.$emit('weappLoading', {done: true, type: 'success', message: `小程序已push到设备`})
           })
         }
       }).catch(err => {
