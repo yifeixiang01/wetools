@@ -6,8 +6,6 @@ name: Build Electron App For Win/Mac
 # Workflow's trigger
 on:
   push:
-    tags:
-      - 'v*.*.*'
 
 # Workflow's jobs
 jobs:
@@ -82,4 +80,4 @@ jobs:
         with:
           files: 'artifacts/**'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: 0a3bae278847fc20faead13e019671093df5d7d0
