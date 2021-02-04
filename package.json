@@ -1,6 +1,6 @@
 {
   "name": "wetools",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "author": "v_feixiangyi <v_feixiangyi@auto-pai.com>",
   "description": "An electron-vue project",
   "license": null,
@@ -28,7 +28,7 @@
     "publish": [
       {
         "provider": "generic",
-        "url": ""
+        "url": "https://github.com/yifeixiang01/wetools/releases/tag/v0.0.4"
       }
     ],
     "files": [
