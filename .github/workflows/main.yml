@@ -6,6 +6,8 @@ name: Build Electron App For Win/Mac
 # Workflow's trigger
 on:
   push:
+    tags:
+      - "v*.*.*"
 
 # Workflow's jobs
 jobs:
@@ -21,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2019, macos-10.15, ubuntu-18.04]
+        os: [windows-2019, macos-10.15]
 
     # create steps
     steps:
@@ -37,23 +39,46 @@ jobs:
       - name: npm install
         run: |
           npm install
+
       # step4: build app for mac/win
       - name: build windows app
         if: matrix.os == 'windows-2019'
         run: |
-          npm run build
+          npm run build:win
+        env:
+          GH_TOKEN: 0a3bae278847fc20faead13e019671093df5d7d0
+
       - name: build mac app
         if: matrix.os == 'macos-10.15'
         run: |
           npm run build
-      - name: build Ubuntu app
-        if: matrix.os == 'ubuntu-18.04'
-        run: |
-          npm run build
+        env:
+          GH_TOKEN: 0a3bae278847fc20faead13e019671093df5d7d0
+
       # step5: cleanup artifacts in dist_electron
       - name: cleanup artifacts for windows
         if: matrix.os == 'windows-2019'
         run: |
-          mkdir artifacts
-          mv release/*.exe artifacts || true
+          npx rimraf "dist_electron/!(*.exe)"
+
+      - name: cleanup artifacts for macosZ
+        if: matrix.os == 'macos-10.15'
+        run: |
+          npx rimraf "dist_electron/!(*.dmg)"
+
+      # step6: upload artifacts
+      - name: upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.os }}
+          path: dist_electron
+
+      # step7: create release
+      - name: release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: "dist_electron/**"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
