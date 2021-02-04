@@ -48,11 +48,11 @@ jobs:
         env:
           GH_TOKEN: 0a3bae278847fc20faead13e019671093df5d7d0
 
-      # step5: cleanup artifacts in build
-      # - name: cleanup artifacts for windows
-      #   if: matrix.os == 'windows-2019'
-      #   run: |
-      #     npx rimraf "build/!(*.exe|*.yml)"
+      step5: cleanup artifacts in build
+      - name: cleanup artifacts for windows
+        if: matrix.os == 'windows-2019'
+        run: |
+          npx rimraf "build/!(*.exe|latest.yml)"
 
       # step6: upload artifacts
       - name: upload artifacts

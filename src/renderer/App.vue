@@ -6,6 +6,7 @@
 
 <script>
 import adbkit from '../main/adbkit'
+import {ipcRenderer} from 'electron'
 import { mapState } from 'vuex'
 import Store from 'electron-store'
 const store = new Store()
@@ -22,6 +23,19 @@ export default {
   created () {
     this.checkConfig() // TODO 此处可以考虑使用路由守卫
     this.onDevices()
+
+    ipcRenderer.send('checkForUpdate')
+    ipcRenderer.on('message', (event, text) => {
+      console.log(event, text)
+      this.tips = text
+    })
+    ipcRenderer.on('downloadProgress', (event, progressObj) => {
+      console.log(progressObj)
+      this.downloadPercent = progressObj.percent || 0
+    })
+    ipcRenderer.on('isUpdateNow', () => {
+      ipcRenderer.send('isUpdateNow')
+    })
   },
   methods: {
     // 打开应用时，先检测有没有配置，没有的话，会跳转配置页
