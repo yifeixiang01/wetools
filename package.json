@@ -1,13 +1,13 @@
 {
   "name": "wetools",
-  "version": "0.0.6",
+  "version": "0.0.4",
   "author": "v_feixiangyi <v_feixiangyi@auto-pai.com>",
   "description": "An electron-vue project",
   "license": null,
   "main": "./dist/electron/main.js",
   "scripts": {
     "build": "node .electron-vue/build.js && electron-builder",
-    "build:win":"node .electron-vue/build.js && electron-builder --windows",
+    "build:win": "node .electron-vue/build.js && electron-builder --windows",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
     "build:web": "cross-env BUILD_TARGET=web node .electron-vue/build.js",
@@ -28,7 +28,7 @@
     "publish": [
       {
         "provider": "generic",
-        "url": "https://github.com/yifeixiang01/wetools/releases/tag/v0.0.6/Assets"
+        "url": "https://github.com/yifeixiang01/wetools/releases/tag/v0.0.5/Assets"
       }
     ],
     "files": [
@@ -66,9 +66,11 @@
     "adbkit": "^2.11.1",
     "axios": "^0.18.0",
     "babili-webpack-plugin": "^0.1.2",
+    "download-git-repo": "^3.0.2",
     "electron-store": "^7.0.0",
     "electron-updater": "^4.3.5",
     "element-ui": "^2.15.0",
+    "rimraf": "^3.0.2",
     "vue": "^2.5.16",
     "vue-electron": "^1.0.6",
     "vue-router": "^3.0.1",

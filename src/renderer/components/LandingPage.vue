@@ -3,7 +3,7 @@
     <el-header style="height: 20px; color: #303133; margin-bottom: 10px;">
       <div class="title">
         <span>{{title}}</span> 
-        <!-- <el-button style="float: right; padding: 3px 0" type="text" @click="toConfigPage">项目配置</el-button> -->
+        <el-button style="float: right; padding: 3px 0" type="text" @click="toConfigPage">项目配置</el-button>
         <el-button style="float: right; padding: 3px 0" type="text" @click="openConfig('device')">管理</el-button>
       </div>
     </el-header>
@@ -62,12 +62,16 @@
             <device-app :src="require('../assets/wcenter.png')" name="活动中心" shape="circle" package-name="com.tencent.wcenter/com.tencent.wcenter.MainActivity"/>
           </el-col>
           <el-col :span="4">
-            <device-app :src="require('../assets/wecar.png')" name="腾讯随行" shape="square" package-name="com.tencent.wecar/com.tencent.wecar.MainActivity"/>
+            <device-app src="" :icon="'el-icon-s-custom'" name="用户中心" shape="circle" package-name="com.tencent.wecar/com.tencent.wecar.MainActivity"/>
           </el-col>
-          <el-col :span="4" v-for="item in appList" :key="item.name">
+          <el-col :span="4">
+            <device-app :src="require('../assets/wecar.png')" name="腾讯随行" shape="square" package-name="com.autopai.usercenter/com.tencent.wecar.MainActivity"/>
+          </el-col>
+          
+          <!-- <el-col :span="4" v-for="item in appList" :key="item.name">
             
             <device-app :src="item.src" :icon="item.icon" :name="item.name" :shape="item.shape" :package-name="item.packageName"/>
-          </el-col>
+          </el-col> -->
         </el-row>
       </el-card>
 

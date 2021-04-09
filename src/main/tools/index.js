@@ -2,7 +2,7 @@
 const { exec, spawn } = require('child_process')
 const os = require('os')
 const fs = require('fs')
-
+const path = require('path')
 /**
  * 将小程序进行编译，并生成.wxapkg文件
  * @param {*} weappName 小程序中文名
@@ -14,7 +14,7 @@ function _compileWeapp (weappName, projectPath, weappCompilePath, wechatDevtools
   return new Promise((resolve, reject) => {
     console.log(`开始编译“${weappName}”小程序`)
     let timer = null
-    let workerProcess = exec(`cli auto-preview --project ${projectPath}`, {cwd: wechatDevtoolsPath}, (error, stdout, stderr) => {
+    let workerProcess = exec(`cli auto-preview --project ${projectPath}`, { cwd: wechatDevtoolsPath }, (error, stdout, stderr) => {
       if (error) {
         console.log('+++error', error)
       }
@@ -182,6 +182,69 @@ function _getIPAddress () {
   }
 }
 
+function copyFolder (srcDir, tarDir, cb) {
+  fs.readdir(srcDir, function (err, files) {
+    var count = 0
+    var checkEnd = function () {
+      ++count === files.length && cb && cb()
+    }
+
+    if (err) {
+      checkEnd()
+      return
+    }
+
+    files.forEach(function (file) {
+      var srcPath = path.join(srcDir, file)
+      var tarPath = path.join(tarDir, file)
+
+      fs.stat(srcPath, function (err, stats) {
+        console.log(err)
+        if (stats.isDirectory()) {
+          console.log('mkdir', tarPath)
+          fs.mkdir(tarPath, function (err) {
+            if (err) {
+              console.log(err)
+              return
+            }
+
+            copyFolder(srcPath, tarPath, checkEnd)
+          })
+        } else {
+          copyFile(srcPath, tarPath, checkEnd)
+        }
+      })
+    })
+
+    // 为空时直接回调
+    files.length === 0 && cb && cb()
+  })
+}
+function copyFile (srcPath, tarPath, cb) {
+  console.log('拷贝文件', srcPath, tarPath)
+
+  var rs = fs.createReadStream(srcPath)
+  rs.on('error', function (err) {
+    if (err) {
+      console.log('read error', srcPath)
+    }
+    cb && cb(err)
+  })
+
+  var ws = fs.createWriteStream(tarPath)
+  ws.on('error', function (err) {
+    if (err) {
+      console.log('write error', tarPath)
+    }
+    cb && cb(err)
+  })
+  ws.on('close', function (ex) {
+    cb && cb(ex)
+  })
+
+  rs.pipe(ws)
+}
+
 export default {
   _compileWeapp,
   _copyFile,
@@ -189,6 +252,7 @@ export default {
   _getDevices,
   _formateDate,
   _isAppRunning,
-  _getIPAddress
-
+  _getIPAddress,
+  copyFolder,
+  copyFile
 }

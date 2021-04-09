@@ -5,11 +5,11 @@
       <el-table-column  label="Owner"  prop="owner"></el-table-column>
       <el-table-column  label="Serial"  prop="serial"></el-table-column>
       <el-table-column  label="status"  prop="status"></el-table-column>
-      <el-table-column  label="操作" align="right">
+      <!-- <el-table-column  label="操作" align="right">
         <template slot-scope="scope">
           <el-button  size="mini"  @click="handleShare(scope.$index, scope.row)">共享</el-button>
         </template>
-      </el-table-column>
+      </el-table-column> -->
     </el-table>
   </div>
 </template>

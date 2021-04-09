@@ -5,19 +5,22 @@
       <el-tab-pane label="设备管理" name="second"><device-list/></el-tab-pane>
       <el-tab-pane label="应用列表" name="fourth">定时任务补偿</el-tab-pane>
     </el-tabs> -->
-    <landing-page></landing-page>
+    <!-- <landing-page></landing-page> -->
+    <createProject/>
   </div>
 </template>
 <script>
 import WeappList from '../components/WeappList.vue'
 import DeviceList from '../components/DeviceList.vue'
 import LandingPage from '../components/LandingPage.vue'
+import createProject from './create-project'
 export default {
   name: 'Home',
   components: {
     WeappList,
     DeviceList,
-    LandingPage
+    LandingPage,
+    createProject
   },
   data () {
     return {
