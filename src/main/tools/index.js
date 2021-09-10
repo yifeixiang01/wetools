@@ -199,9 +199,10 @@ function copyFolder (srcDir, tarDir, cb) {
       var tarPath = path.join(tarDir, file)
 
       fs.stat(srcPath, function (err, stats) {
-        console.log(err)
+        if (err) {
+          console.log(err)
+        }
         if (stats.isDirectory()) {
-          console.log('mkdir', tarPath)
           fs.mkdir(tarPath, function (err) {
             if (err) {
               console.log(err)
@@ -221,8 +222,6 @@ function copyFolder (srcDir, tarDir, cb) {
   })
 }
 function copyFile (srcPath, tarPath, cb) {
-  console.log('拷贝文件', srcPath, tarPath)
-
   var rs = fs.createReadStream(srcPath)
   rs.on('error', function (err) {
     if (err) {

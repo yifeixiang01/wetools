@@ -25,7 +25,7 @@
     "directories": {
       "output": "build"
     },
-    "publish": [
+    "publish": [ 
       {
         "provider": "generic",
         "url": "https://github.com/yifeixiang01/wetools/releases/tag/v0.0.5/Assets"

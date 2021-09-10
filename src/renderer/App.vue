@@ -1,29 +1,46 @@
 <template>
-  <div id="app">
-    <router-view></router-view>
+  <div id="app"  v-loading.fullscreen.lock="isUpdatingRepo" :element-loading-text="isUpdatingMessage"  element-loading-spinner="el-icon-loading"  element-loading-background="rgba(0, 0, 0, 0.8)">
+    <!-- <keep-alive> -->
+      <router-view></router-view>
+    <!-- </keep-alive> -->
+    
   </div>
 </template>
 
 <script>
+
 import adbkit from '../main/adbkit'
-import {ipcRenderer} from 'electron'
+import {ipcRenderer, shell} from 'electron'
 import { mapState } from 'vuex'
+import fs from 'fs'
 import Store from 'electron-store'
+
+const {dialog} = require('electron').remote
+const path = require('path')
 const store = new Store()
+
 export default {
   name: 'wetools',
+  data () {
+    return {
+
+    }
+  },
   computed: {
     ...mapState({
       hostIP: state => state.AppConfig.hostIP,
       userName: state => state.AppConfig.userName,
       localDeviceList: state => state.Device.localDeviceList,
-      selectedDevice: state => state.Device.selectedDevice
+      selectedDevice: state => state.Device.selectedDevice,
+      isUpdatingRepo: state => state.WeappProject.isUpdatingRepo,
+      isUpdatingMessage: state => state.WeappProject.isUpdatingMessage
     })
   },
   created () {
     this.checkConfig() // TODO 此处可以考虑使用路由守卫
     this.onDevices()
 
+    // 检测是否有新版本
     ipcRenderer.send('checkForUpdate')
     ipcRenderer.on('message', (event, text) => {
       console.log(event, text)
@@ -35,6 +52,33 @@ export default {
     })
     ipcRenderer.on('isUpdateNow', () => {
       ipcRenderer.send('isUpdateNow')
+    })
+
+    // 渲染进程控制创建菜单
+    ipcRenderer.send('show-context-menu')
+    ipcRenderer.on('context-menu-command', (event, text) => {
+      console.log(event, text)
+      switch (text) {
+        case 'openDoc': shell.openExternal('https://www.showdoc.com.cn/wetools?page_id=6294887021426043'); break
+        case 'setConfig': this.$route.name !== 'Config' && this.$router.replace('/Config'); break
+        case 'createWeapp': this.$route.name !== 'CreateWeapp' && this.$router.replace('/CreateWeapp'); break
+        case 'wetools': this.$route.name !== 'Home' && this.$router.replace('/'); break
+        case 'importWeapp': dialog.showOpenDialog({properties: ['openDirectory']}, (result) => {
+          if (result) {
+            let packagePath = path.join(result[0], 'package.json')
+            if (fs.existsSync(packagePath)) {
+              this.$store.commit('changeCutWeappPro', {cutWeappProPath: result[0]})
+
+              this.$route.name !== 'WeappProject' && this.$router.replace({name: 'WeappProject'})
+            } else {
+              this.$alert('请打开使用脚手架工具创建的项目！', '提示', {
+                confirmButtonText: '确定'
+              })
+            }
+          }
+        }); break
+        case 'updateRepo': this.$store.dispatch('updateRepo'); break
+      }
     })
   },
   methods: {

@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Config from '@/views/Config.vue'
+import CreateWeapp from '@/views/create-project.vue'
+import weappProject from '@/views/project.vue'
 Vue.use(Router)
 
 export default new Router({
@@ -14,6 +16,16 @@ export default new Router({
       path: '/config',
       name: 'Config',
       component: Config
+    },
+    {
+      path: '/createWeapp',
+      name: 'CreateWeapp',
+      component: CreateWeapp
+    },
+    {
+      path: '/weappProject',
+      name: 'WeappProject',
+      component: weappProject
     }
   ]
 })

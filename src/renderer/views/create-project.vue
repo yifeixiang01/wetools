@@ -1,5 +1,5 @@
 <template>
-  <el-container v-loading.fullscreen.lock="showLoading" element-loading-text="正在拉取远程模板..."  element-loading-spinner="el-icon-loading"  element-loading-background="rgba(0, 0, 0, 0.8)">
+  <el-container>
     <el-main >
       <el-row>
         <el-col :span="6">
@@ -8,104 +8,51 @@
             class="image"
           ></el-image>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="14">
           <div class="title">小程序自定义</div>
           <div class="title-des">可自定选择模块以创建新的项目</div>
         </el-col>
       </el-row>
       <el-row :gutter="20">
         <el-col :span="8">
-          <el-button type="text" icon="el-icon-folder-opened"
-            >项目位置</el-button
-          >
-          <el-input
-            placeholder="请输入项目存放的位置"
-            v-model="projectDir"
-            size="small"
-          ></el-input>
-        </el-col>
-        <el-col :span="8">
-          <el-button type="text" icon="el-icon-tickets">小程序名称</el-button>
-          <el-input
-            placeholder="请输入小程序名称"
-            size="small"
-            v-model="weappNameZh"
-          ></el-input>
+          <el-button type="text" icon="el-icon-folder-opened" @click="selectProDir">项目位置</el-button>
+          <el-input  placeholder="请输入项目存放的位置"  v-model="projectDir"  size="small"></el-input>
         </el-col>
         <el-col :span="8">
           <el-button type="text" icon="el-icon-document">小程序英文名</el-button>
-          <el-input
-            placeholder="请输入小程序英文名"
-            size="small"
-            v-model="weappName"
-          ></el-input>
+          <el-input  placeholder="请输入小程序英文名"  size="small"  v-model="weappName"></el-input>
+        </el-col>
+        <el-col :span="8">
+          <el-button type="text" icon="el-icon-tickets">小程序名称</el-button>
+          <el-input placeholder="请输入小程序名称"  size="small"  v-model="weappNameZh"></el-input>
         </el-col>
       </el-row>
-      <el-row>
-        <el-button type="text" icon="el-icon-setting">配置列表</el-button>
-      </el-row>
-      <el-carousel
-        trigger="click"
-        :loop="false"
-        indicator-position="none"
-        :autoplay="false"
-        height="300px"
-      >
-        <el-carousel-item
-          v-for="(configList, configIndex) in list"
-          :key="configIndex"
-        >
-          <div class="swiper-item">
-            <div
-              class="module-item"
-              v-for="(module, index) in configList"
-              :key="module.name"
-              @contextmenu="mouseRight(configIndex, index)"
-               @click="selectModule(configIndex, index)"
-            >
-              <div
-                class="module-name"
-              >
+      <el-card class="box-card" height="300px" style="margin: 20px 0;">
+        <div slot="header" class="clearfix">
+          <span>组件列表</span>
+        </div>
+        <div class="module-list">
+          <div  class="module-item"  v-for="(module, index) in repoModules"  :key="module.name"  @contextmenu="mouseRight(index)"   @click="selectModule(index)">
+              <div  class="module-name">
                 {{ module.name }}
               </div>
               <div class="module-des">{{ module.description }}</div>
-              <div
-                :class="[
-                  'el-icon-success',
-                  'select-icon',
-                  module.selected ? 'selected' : '',
-                ]"
-              ></div>
+              <div :class="['el-icon-success',  'select-icon',  module.selected ? 'selected' : '',]"></div>
             </div>
-          </div>
-        </el-carousel-item>
-      </el-carousel>
-      <el-row type="flex" justify="center" v-if="list.length > 0">
+        </div>
+      </el-card>
+      <el-row type="flex" justify="center" v-if="repoModules.length > 0">
         <el-button type="primary" @click="createProject">开始创建</el-button>
       </el-row>
     </el-main>
 
     <el-dialog :title="title" :visible.sync="dialogVisible" width="80%">
-      <view v-for="(log, index) in logs" :key="index"
-        >更新时间：{{ log.time }}</view
-      >
+      <view v-for="(log, index) in logs" :key="index">更新时间：{{ log.time }}</view>
       <el-table :data="logs">
-        <el-table-column
-          property="mender"
-          label="修改人"
-          width="100"
-        ></el-table-column>
+        <el-table-column  property="mender"  label="修改人"  width="100"></el-table-column>
         <el-table-column property="update" label="更新内容"></el-table-column>
-        <el-table-column
-          property="version"
-          label="版本号"
-          width="100"
-        ></el-table-column>
-        <el-table-column
-          property="time"
-          label="更新日期"
-          width="150"
-        ></el-table-column>
+        <el-table-column  property="version"  label="版本号"  width="100"></el-table-column>
+        <el-table-column  property="time"  label="更新日期"  width="150"></el-table-column>
       </el-table>
     </el-dialog>
   </el-container>
@@ -113,16 +60,15 @@
 
 <script>
 import tools from '../../main/tools/index'
-const download = require('download-git-repo')
-const path = require('path')
-const rimraf = require('rimraf')
+import { mapState } from 'vuex'
 const fs = require('fs')
+const path = require('path')
+const {dialog} = require('electron').remote
 
-console.log(tools)
 export default {
   data () {
     return {
-      list: [],
+      repoModules: [],
       projectDir: '',
       weappName: '',
       weappNameZh: '',
@@ -130,158 +76,172 @@ export default {
       logs: [],
       title: '更新日志',
       showLoading: false
+
     }
   },
-  created () {
-    // this.getGitConfig()
-    let filePath = path.join(
-      process.cwd(),
-      process.env.NODE_ENV === 'development'
-        ? 'extraResources/templates/package.json'
-        : '/resources/extraResources/templates/package.json'
-    )
+  computed: {
+    ...mapState({
+      modules: function (state) {
+        return state.WeappProject.modules
+      }
+    })
 
-    this.getModuleList(filePath)
+  },
+  watch: {
+    modules (val) {
+      this.repoModules = JSON.parse(JSON.stringify(val))
+    }
+  },
+  mounted () {
+    // 获取代码库配置信息
+    this.$store.commit('getModules')
   },
   methods: {
+    formateModules: (modules) => {
+      console.log('格式化代码库模块列表', modules)
+      let arr = []
+      let len = modules.length
+      let lineLen = len % 8 === 0 ? len / 4 : Math.floor(len / 4 + 1)
+      modules.map(module => {
+        module.selected = false
+      })
+      if (len > 0) {
+        for (let i = 0; i < lineLen; i += 8) {
+          let temp = modules.slice(i * 8, i * 8 + 8)
+          arr.push(temp)
+        }
+      }
+
+      return arr
+    },
+    // 打开对话框选择文件夹目录
+    selectProDir () {
+      dialog.showOpenDialog({properties: ['openDirectory']}, (result) => {
+        if (result) {
+          this.projectDir = result[0]
+        }
+      })
+    },
     // 选择/取消模块
-    selectModule (configIndex, index) {
-      this.list[configIndex][index].selected = !this.list[configIndex][index]
-        .selected
+    selectModule (index) {
+      this.$set(this.repoModules[index], 'selected', !this.repoModules[index].selected)
+    },
+    // 鼠标右键模块，显示更新日志
+    mouseRight (index) {
+      this.dialogVisible = true
+      this.title = `更新日志 ${this.repoModules[index].name}`
+      this.logs = this.repoModules[index].logs
     },
     // 创建项目
     createProject () {
-      let list = [].concat(...this.list)
       let selectedModules = []
-      list.forEach((item) => {
+      this.repoModules.forEach((item) => {
         if (item.selected) {
-          let tmpObj = {name: item.name, path: item.path}
-          selectedModules.push(tmpObj)
+          selectedModules.push(item)
         }
       })
 
       // 空白模板文件夹路径
-      let folderPath = path.join(
-        process.cwd(),
-        process.env.NODE_ENV === 'development'
-          ? 'extraResources/black-template'
-          : '/resources/extraResources/black-template'
-      )
+      let templatePath = path.join(process.cwd(), process.env.NODE_ENV === 'development' ? 'extraResources/black-template' : '/resources/extraResources/black-template')
 
-      if (this.projectDir && this.weappName) {
+      if (this.projectDir && this.weappName && this.weappNameZh) {
         let projectPath = path.join(this.projectDir, this.weappName)
         // 先创建项目目录，再拷贝空白模板，之后拷贝选择的模块文件
         fs.mkdirSync(projectPath)
-        tools.copyFolder(folderPath, projectPath, () => {
-          console.log('拷贝完成')
-          let templatePath = path.join(
-            process.cwd(),
-            process.env.NODE_ENV === 'development'
-              ? 'extraResources/templates'
-              : '/resources/extraResources/templates'
-          )
-          this.copyModules(selectedModules, templatePath, projectPath)
+        tools.copyFolder(templatePath, projectPath, () => {
+          console.log('---------模板拷贝完成-----------')
+
+          let repoPath = path.join(process.cwd(), process.env.NODE_ENV === 'development' ? 'extraResources/templates' : '/resources/extraResources/templates')
+          // 修改package文件
+          this.changePackage(repoPath, projectPath, selectedModules)
+
+          // 拷贝选择的模块
+
+          this.copyModules(repoPath, projectPath, selectedModules)
+
+          // 修改project.config.json文件
+          this.changeProConfig(projectPath)
+          // 修改constants文件
+          this.changeConstant(projectPath)
         })
       }
     },
-    // 鼠标右键模块，显示更新日志
-    mouseRight (configIndex, index) {
-      console.log(configIndex, index)
-      this.dialogVisible = true
-      this.title = `更新日志 ${this.list[configIndex][index].name}`
-      this.logs = this.list[configIndex][index].logs
-    },
-    // 克隆远程代码库
-    getGitConfig () {
-      this.showLoading = true
-      let dir = path.join(
-        process.cwd(),
-        process.env.NODE_ENV === 'development'
-          ? 'extraResources/templates'
-          : '/resources/extraResources/templates'
-      )
-      // 下载前先保证文件夹下没有其它文件
-      rimraf.sync(dir, {})
-      // git clone
-      download(
-        'direct:http://10.1.120.4:8081/v_feixiangyi/weapp-template.git',
-        dir,
-        { clone: true },
-        (err) => {
-          this.showLoading = false
-          console.log(err ? 'Error' : 'Success', err)
-          let filePath = path.join(dir, 'package.json')
-          if (fs.existsSync(filePath)) {
-            console.log('存在package.json')
-            this.$message({
-              message: '模板拉取成功！',
-              type: 'success'
-            })
-            this.getModuleList(filePath)
-          } else {
-            console.log('不存在package.json')
-            this.$message.error('模板拉取失败！')
-          }
-        }
-      )
-    },
-    // 获取模块配置内容
-    getModuleList (file) {
-      console.log('开始读取package.json文件内容')
-      let config = fs.readFileSync(file, 'utf8')
-
-      let moduleList = JSON.parse(config).modules
-      this.formateModuleList(moduleList)
-    },
-    formateModuleList (list) {
-      console.log('模块列表', list)
-      let arr = []
-      let len = list.length
-      let lineLen = len % 8 === 0 ? len / 4 : Math.floor(len / 4 + 1)
-      list.forEach((item) => {
-        item.selected = false
-      })
-      for (let i = 0; i < lineLen; i += 8) {
-        let temp = list.slice(i * 8, i * 8 + 8)
-        arr.push(temp)
-      }
-
-      this.list = arr
-    },
-    copyModules  (selectedModules, srcPath, tarPath) {
+    // copy选择的模块
+    copyModules  (srcPath, tarPath, selectedModules) {
       console.log('开始拷贝模块', selectedModules)
+      // let tarAppJsonPath = path.join(tarPath, 'app.json')
+      // let tarAppJsonData = JSON.parse(fs.readFileSync(tarAppJsonPath, 'utf8'))
 
       selectedModules.forEach(module => {
         let modulePath = path.join(srcPath, module.path, module.name)
         console.log('模块路径', modulePath)
         let target = path.join(tarPath, module.path, module.name)
         fs.mkdirSync(target)
-        console.log('目标文件夹', target)
         tools.copyFolder(modulePath, target, () => {
           console.log(`拷贝${module.name}完成`)
         })
+
+        // if (module.pages) {
+        //   console.log('----在app.json中添加页面路径', module.pages)
+        //   tarAppJsonData.pages = tarAppJsonData.pages.concat(module.pages)
+        // }
       })
-      // 拷贝package文件
-      this.copyPackage(srcPath, tarPath)
+
+      // 修改app.json文件中的pages
+      // fs.writeFileSync(tarAppJsonPath, JSON.stringify(tarAppJsonData))
+
       this.$message({
         message: '项目创建完成！',
         type: 'success'
       })
+      setTimeout(() => {
+        this.$store.commit('changeCutWeappPro', {cutWeappProPath: tarPath})
+        this.$router.replace({name: 'WeappProject'})
+      }, 500)
     },
-    // 拷贝package文件
-    copyPackage (srcPath, tarPath) {
-      let srcPackageFile = path.join(srcPath, 'package.json')
-      let tarPackageFile = path.join(tarPath, 'package.json')
-      console.log('开始拷贝package文件', srcPackageFile, tarPackageFile)
-      tools.copyFile(srcPackageFile, tarPackageFile)
-      this.changeWeappName(tarPath)
-    },
-    changeWeappName (tarPath) {
-      let packagePath = path.join(tarPath, 'project.config.json')
-      let packageData = fs.readFileSync(packagePath, 'utf8')
+    // 修改package文件中添加的模块和小程序名字
+    changePackage (srcPath, tarPath, selectedmodules) {
+      console.log('修改package.json')
+      let tarPackagePath = path.join(tarPath, 'package.json')
+      let srcPackagePath = path.join(srcPath, 'package.json')
+      let srcPackageData = JSON.parse(fs.readFileSync(srcPackagePath, 'utf8'))
+      console.log(srcPackageData)
+      // 修改package文件中的模块为选择的模块
+      srcPackageData.modules.forEach(proModule => {
+        proModule.selected = false
+        selectedmodules.forEach(module => {
+          if (proModule.name === module.name) {
+            proModule.selected = true
+          }
+        })
+      })
 
-      fs.writeFileSync(packagePath, packageData.replace('<weappNameZh>', this.weappNameZh))
+      // 修改package中的项目名
+      srcPackageData.weappName = this.weappName
+      srcPackageData.weappNameZh = this.weappNameZh
+
+      fs.writeFileSync(tarPackagePath, JSON.stringify(srcPackageData), 'utf8')
+    },
+    // 修改project.config.json文件中的小程序名字
+    changeProConfig (tarPath) {
+      let filePath = path.join(tarPath, 'project.config.json')
+      let fileData = fs.readFileSync(filePath, 'utf8')
+      let data = fileData.replace('<weappNameZh>', this.weappNameZh).replace('<weappName>', this.weappName)
+      fs.writeFileSync(filePath, data)
+    },
+    // 修改project.config.json文件中的小程序名字
+    changeConstant (tarPath) {
+      console.log('修改constants文件')
+      let filePath = path.join(tarPath, 'utils/constants.js')
+      let fileData = fs.readFileSync(filePath, 'utf8')
+      let data = fileData.replace('<weappNameZh>', this.weappNameZh).replace('<weappName>', this.weappName)
+      fs.writeFileSync(filePath, data)
+      console.log('constant', data)
+      let appPath = path.join(tarPath, 'app.js')
+      let appData = fs.readFileSync(appPath, 'utf8')
+      fs.writeFileSync(appPath, appData.replace('<weappNameZh>', this.weappNameZh))
     }
+
   }
 }
 </script>
@@ -302,16 +262,15 @@ export default {
   font-size: 14px;
   line-height: 30px;
 }
-.swiper-item {
+.module-list{
   width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
+  height: 250px;
+  overflow-y: auto;
 }
 .module-item {
   width: 50%;
-  height: 25%;
+  height: 50px;
+  float: left;
   display: flex;
   flex-direction: column;
   justify-content: center;

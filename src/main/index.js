@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, Menu, ipcMain } from 'electron'
 import { autoUpdater } from 'electron-updater'
 
 import Store from 'electron-store'
@@ -34,7 +34,7 @@ function createWindow () {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    height: 620,
+    height: 662,
     width: 820,
     maximizable: false,
     useContentSize: true,
@@ -74,4 +74,77 @@ autoUpdater.on('update-downloaded', () => {
 
 app.on('ready', () => {
   if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates()
+
+  ipcMain.on('show-context-menu', (event) => {
+    createMenu(event)
+  })
 })
+
+// 顶部菜单
+function createMenu (event) {
+  console.log('----------------------------开始创建菜单')
+  let template = [
+    {
+      label: '设置',
+      submenu: [
+        {
+          label: '应用设置',
+          click: function () {
+            console.log('----打开应用配置')
+
+            event.sender.send('context-menu-command', 'setConfig')
+          }
+        }
+      ]
+    },
+    {
+      label: '项目',
+      submenu: [
+        {
+          label: '更新代码库',
+          click: function () {
+            event.sender.send('context-menu-command', 'updateRepo')
+          }
+        },
+        {
+          label: '新建小程序',
+          click: function () {
+            event.sender.send('context-menu-command', 'createWeapp')
+          }
+        },
+        {
+          label: '导入小程序',
+          click: function () {
+            console.log('------导入项目')
+            event.sender.send('context-menu-command', 'importWeapp')
+          }
+        }
+      ]
+    },
+    {
+      label: '工具',
+      submenu: [
+        {
+          label: '小程序工具',
+          click: function () {
+            event.sender.send('context-menu-command', 'wetools')
+          }
+        }
+      ]
+    },
+    {
+      label: '帮助',
+      submenu: [
+        {
+          label: '使用文档',
+          click: function () {
+            event.sender.send('context-menu-command', 'openDoc')
+          }
+        }
+      ]
+    }
+  ]
+
+  let menu = Menu.buildFromTemplate(template)
+  Menu.setApplicationMenu(menu)
+}
