@@ -81,6 +81,8 @@ function _isExistFileInDevice ({serial, filePath}) {
       if (error) {
         console.log('error', JSON.stringify(error), typeof JSON.stringify(error))
       }
+      console.log(stdout)
+      console.log(stderr)
       console.log('stdout', stdout)
       if (stdout.indexOf('no devices/emulators') > -1) {
         reject(new Error('设备连接中断'))
