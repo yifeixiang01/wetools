@@ -26,7 +26,7 @@ export default {
       this.$emit('weappLoading', {done: false, type: 'success', message: `正在将小程序包push到车机...`})
 
       // 设备上的文件存储目录
-      let aimPathInDevice = this.aimDirection.name === '本地调试包' ? '/sdcard/moss/weapp/debug.wxapkg' : `data/data/com.tencent.wecarmas/files/moss/${this.aimDirection.name}/pkg/${this.aimDirection.appName}.wxapkg`
+      let aimPathInDevice = this.aimDirection.name === '本地调试包' ? '/sdcard/moss/weapp/debug.wxapkg' : `data/data/${this.selectedDevice.deviceId.indexOf('emulator') !== -1 ? 'com.tencent.wecar' : 'com.tencent.wecarmas'}/files/moss/${this.aimDirection.name}/pkg/${this.aimDirection.appName}.wxapkg`
       // 判断源文件是否是小程序包
       if (resourcePath.indexOf('.wxapkg') > -1) {
         if (this.selectedDevice) {

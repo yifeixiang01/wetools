@@ -4,12 +4,12 @@
       <el-form-item label="用户名称" prop="userName">
         <el-input v-model="AppConfig.userName" placeholder="请输入用户名"></el-input>
       </el-form-item>
-      <el-form-item label="开发工具路径" prop="wechatDevtoolsPath">
+      <!-- <el-form-item label="开发工具路径" prop="wechatDevtoolsPath">
         <el-input v-model="AppConfig.wechatDevtoolsPath" placeholder="微信开发工具安装的路径"></el-input>
       </el-form-item>
       <el-form-item label="编译存储路径" prop="weappCompilePath">
         <el-input v-model="AppConfig.weappCompilePath" placeholder="小程序编译后的存储路径"></el-input>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="文件输出路径" prop="outputPath">
         <el-input v-model="AppConfig.outputPath" placeholder="截图、录屏、小程序包等文件输出目录"></el-input>
       </el-form-item>
@@ -41,33 +41,33 @@ export default {
             },
             trigger: 'blur'}
         ],
-        wechatDevtoolsPath: [
-          { trigger: 'blur',
-            validator: (rule, value, callback) => {
-              if (value === '') {
-                return callback(new Error('请输入微信开发工具路径'))
-              } else if (!fs.existsSync(`${value}/cli.bat`)) {
-                return callback(new Error('请输入正确的微信开发工具路径'))
-              } else {
-                callback()
-              }
-            }
-          }
-        ],
-        weappCompilePath: [
-          { trigger: 'blur',
-            validator: function (rule, value, callback) {
-              console.log(value, fs.existsSync(value), value.indexOf('Applet') > 0)
-              if (value === '') {
-                return callback(new Error('请输入小程序编译存储路径'))
-              } else if (!(fs.existsSync(`${value}`) && value.indexOf('Applet') > 0)) {
-                return callback(new Error('请输入正确的小程序编译存储路径'))
-              } else {
-                callback()
-              }
-            }
-          }
-        ],
+        // wechatDevtoolsPath: [
+        //   { trigger: 'blur',
+        //     validator: (rule, value, callback) => {
+        //       if (value === '') {
+        //         return callback(new Error('请输入微信开发工具路径'))
+        //       } else if (!fs.existsSync(`${value}/cli.bat`)) {
+        //         return callback(new Error('请输入正确的微信开发工具路径'))
+        //       } else {
+        //         callback()
+        //       }
+        //     }
+        //   }
+        // ],
+        // weappCompilePath: [
+        //   { trigger: 'blur',
+        //     validator: function (rule, value, callback) {
+        //       console.log(value, fs.existsSync(value), value.indexOf('Applet') > 0)
+        //       if (value === '') {
+        //         return callback(new Error('请输入小程序编译存储路径'))
+        //       } else if (!(fs.existsSync(`${value}`) && value.indexOf('Applet') > 0)) {
+        //         return callback(new Error('请输入正确的小程序编译存储路径'))
+        //       } else {
+        //         callback()
+        //       }
+        //     }
+        //   }
+        // ],
         outputPath: [
           { trigger: 'blur',
             validator: function (rule, value, callback) {

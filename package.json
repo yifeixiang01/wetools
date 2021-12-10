@@ -1,9 +1,9 @@
 {
   "name": "wetools",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "author": "v_feixiangyi <v_feixiangyi@auto-pai.com>",
   "description": "An electron-vue project",
-  "license": null,
+  "license": "小程序开发辅助工具",
   "main": "./dist/electron/main.js",
   "scripts": {
     "build": "node .electron-vue/build.js && electron-builder",
